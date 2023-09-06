@@ -7,30 +7,32 @@
     header("location: index.php");
 }
 
-if(isset($_POST['submit'])) {
-    
-    if($_POST['title'] == "" OR $_POST['body'] == "") {
+  if(isset($_POST['submit'])) {
       
-      echo "some inputs are empty";
+      //check for empty values and echo error message
+      if($_POST['title'] == "" OR $_POST['body'] == "") {
+        
+        echo "some inputs are empty";
 
-    } else {
-      $title = $_POST['title'];
+      } else {
+        //fetch subbmitted data and display the title,body-message by a registred user(username)
+        $title = $_POST['title'];
 
-      $body = $_POST['body'];
+        $body = $_POST['body'];
 
-      $username = $_SESSION['username'];
+        $username = $_SESSION['username'];
 
-      $insert = $conn->prepare("INSERT INTO posts (title, body, username)
-      VALUES (:title, :body, :username)");
+        $insert = $conn->prepare("INSERT INTO posts (title, body, username)
+        VALUES (:title, :body, :username)");
 
-      $insert->execute([
-        ':title' => $title,
-        ':body' => $body,
-        ':username' => $username,
-      ]);
+        $insert->execute([
+          ':title' => $title,
+          ':body' => $body,
+          ':username' => $username,
+        ]);
 
-      header("location: index.php");
-    }
+        header("location: index.php");
+      }
   }
 
 ?>

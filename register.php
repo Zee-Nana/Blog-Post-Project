@@ -9,7 +9,7 @@
 
 
   if(isset($_POST['submit'])) {
-    
+    //check for submit data
     if($_POST['email'] == "" AND $_POST['username'] == "" OR $_POST['password'] == "") {
       echo "some inputs are empty";
     }else {
@@ -17,9 +17,11 @@
       $username = $_POST['username'];
       $password = $_POST['password'];
 
+      //fetch submitted data
       $insert = $conn->prepare("INSERT INTO users (email, username, mypassword)
       VALUES (:email, :username, :mypassword)");
 
+      //execute submitted data
       $insert->execute([
         ':email' => $email,
         ':username' => $username,

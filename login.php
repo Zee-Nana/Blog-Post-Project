@@ -2,49 +2,48 @@
 <?php require "config.php"; ?>
 
 <?php
-  //check data for the submit
-
-  //take the data and do the query
-
-  //execute query
-
-  //fetch the data
-
-  //check for the row count
-
-  //and use password_verify function
-
 
   if(isset($_SESSION['username'])) {
       header("location: index.php");
   }
 
+  //check data for the submit
   if (isset($_POST['submit'])) {
-    if($_POST['email'] == '' OR $_POST['password'] == '') {
-      echo 'some inputs are empty';
-    }else {
-      $email = $_POST['email'];
-      $password = $_POST['password'];
+      //check for empty vlaue and echo error message.
+      if($_POST['email'] == '' OR $_POST['password'] == '') {
+        echo 'some inputs are empty';
+      }else {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
 
-      $login = $conn->query("SELECT * FROM users WHERE email = '$email'");
+        //take the data and do the query
+        $login = $conn->query("SELECT * FROM users WHERE email = '$email'");
 
-      $login->execute();
+        //execute query
+        $login->execute();
 
-      $data = $login->fetch(PDO::FETCH_ASSOC);
-      
-      if($login->rowCount() > 0) {
-          if(password_verify($password, $data['mypassword'])) {
-            $_SESSION['username'] = $data['username'];
-            $_SESSION['email'] = $data['email'];
+        //fetch the data
+        $data = $login->fetch(PDO::FETCH_ASSOC);
 
-            header("location: index.php");
-          } else{
-            echo "email and password does not exist";
-          } 
-          
-        }else {
-        echo "email and password does not exist";
-        }
+
+        //check for the row count
+        if($login->rowCount() > 0) {
+
+              //and use password_verify function
+              if(password_verify($password, $data['mypassword'])) {
+                
+                $_SESSION['username'] = $data['username'];
+                $_SESSION['user_id'] = $data['id'];
+                $_SESSION['email'] = $data['email'];
+
+                header("location: index.php");
+              } else{
+                echo "email and password does not exist";
+              } 
+            
+          }else {
+          echo "email and password does not exist";
+          }
 
       }
       }

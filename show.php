@@ -6,6 +6,7 @@
 
             $id = $_GET['id'];
 
+            // using id to fetch and display data from mysql database
             $onePost = $conn->
             query("SELECT * FROM posts WHERE id='$id'");
             $onePost->execute();
@@ -14,10 +15,17 @@
 
         }
 
+            // using id to fetch and display comments from mysql database
             $comments = $conn->query("SELECT * FROM comments WHERE post_id='$id'");
             $comments->execute();
 
             $comment = $comments->fetchAll(PDO::FETCH_OBJ);
+
+            // using post_id and user_id to fetch ratings number data from mysql database and alert rating number using jquery
+            $ratings = $conn->query("SELECT * FROM rates WHERE post_id='$id' AND user_id='$_SESSION[user_id]");
+            $ratings->execute();
+
+            $rating = $ratings->fetch(PDO::FETCH_OBJ);
 
 
 ?>
@@ -25,8 +33,17 @@
 <div class="container">
     <div class="card mt-5">
         <div class="card-body ">
+
             <h5 class="card-title"> <?php echo $posts->title; ?> </h5>
             <p class="card-text"><?php echo $posts->body; ?></p>
+                <form id="form-data" method="POST">
+                    <div class="my-rating"></div>
+                    <input id="rating" type="hidden" name="rating" value="" >
+                    <input id="post_id" type="hidden" name="post_id" value="<?php echo $posts->id; ?>">
+                    <input id="user_id" type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+
+                </form>
+
         </div>
     </div>
 </div>
@@ -94,7 +111,7 @@
                     $("#username").val(null);
                     $("#post_id").val(null);
 
-                    $("#msg").html("Added Successfully").toggleClass("alert alert-success bg-success text-white mt-3");
+                    $("#msg").html("Comment Adding...").toggleClass("alert alert-success bg-success text-white mt-3");
                     fetch();
                 }
             });
@@ -126,13 +143,49 @@
             });
         });
 
-        //setting refresh interval to 3000ms
+        //Setting Refresh Interval to 3000ms
         function fetch() {
 
             setInterval(function () {
                 $("body").load("show.php?id=<?php echo $_GET['id']; ?>")
             }, 3000);
         }
+            //rating sys plugin call
+        $(".my-rating").starRating({
+            starSize: 20,
+
+            initialRating: "<?php 
+            
+                if(isset($rating->rating) AND isset($rating->user_id) AND $rating->user_id == $_SESSION['user_id'] ) {
+                    echo $rating->rating;
+                } else {
+                    echo '0';
+                }
+            
+            ?>",
+
+            callback: function(currentRating, $el){
+            // make a server call here
+            $("#rating").val(currentRating);
+
+                $(".my-rating").click(function(e) {
+                    e.preventDefault();
+
+                    var formdata = $("#form-data").serialize()+'&insert=insert';
+
+                    $.ajax({
+                        type: "POST",
+                        url: 'insert-ratings.php',
+                        data: formdata,
+
+                        success: function() {
+                            alert(formdata);
+                        }
+                    })
+                })
+
+        }
+});
 
      });
 
